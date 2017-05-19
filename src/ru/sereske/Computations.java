@@ -42,6 +42,7 @@ public class Computations {
     private double sigmaR;
 
     private double u;
+
     private double a;
     private double c;
 
@@ -613,7 +614,7 @@ public class Computations {
     }
 
     public static void main(String[] args) {
-        Computations computations = new Computations(104.0, 1700.0, 140.0, new Wire("300/204"), Wind.Two, Area.B, Ice.One,
+        Computations computations = new Computations(104.0, 1700.0, 140.0, Wire.getWire1(), Wind.Two, Area.B, Ice.One,
                 -55, -5, -10, 35, 110);
         //System.out.println("Sigma0: " + computations.getSigma0());
         //System.out.println("ynb: " + computations.getYnb());
@@ -626,10 +627,22 @@ public class Computations {
         System.out.println("Fa: " + computations.getFaMaxProvis());
         System.out.println("Fb: " + computations.getFbMaxProvis());
         System.out.println("L: " + computations.getLMaxProvis());
-        computations.getMontazh().forEach(a -> System.out.println("temp: " + a.temp + ", Fa: " + a.Fa + ", Fb: " + a.Fb));
+        computations.getMontazh().forEach(a -> System.out.println("temp: " + a.getTemp() + ", Fa: " + a.getFa() + ", Fb: " + a.getFb()));
         System.out.println("RelMech2: " + computations.ReLmech2());
         System.out.println("RelMech1: " + computations.ReLmech1());
         System.out.println("RelMech1: " + computations.ReLmech1());
         System.out.println("Temp max provis: " + computations.getTempMaxProvis());
+    }
+
+    public double getSigmaOpr() {
+        return sigmaOpr;
+    }
+
+    public double getyOpr() {
+        return yOpr;
+    }
+
+    public double getTempOpr() {
+        return tempOpr;
     }
 }
