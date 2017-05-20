@@ -22,7 +22,7 @@ public class Control {
         graphPanel.setComputations(computations);
     }
 
-    public void update() {
+    public void update() throws WireException {
         outYPanel.update();
         outClimaPanel.update();
         montazhPanel.update();

@@ -3,6 +3,7 @@ package ru.sereske.gui;
 import ru.sereske.Computations;
 import ru.sereske.Control;
 import ru.sereske.Wire;
+import ru.sereske.WireException;
 import ru.sereske.enumeration.Area;
 import ru.sereske.enumeration.Ice;
 import ru.sereske.enumeration.Wind;
@@ -217,7 +218,11 @@ public class InputPanel extends JPanel implements PropertyChangeListener {
                         wire, wind, area, ice,
                         minTemp, avgTemp, iceTemp, maxTemp, voltage);
                 control.setComputations(computations);
-                control.update();
+                try {
+                    control.update();
+                } catch (WireException exc) {
+                    JOptionPane.showMessageDialog(null, exc.getMessage());
+                }
             }
         });
 

@@ -1,6 +1,7 @@
 package ru.sereske.gui;
 
 import ru.sereske.Computations;
+import ru.sereske.WireException;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -179,7 +180,7 @@ public class OutClimaPanel extends JPanel {
         this.computations = computations;
     }
 
-    public void update() {
+    public void update()  throws WireException {
         tfSigmaOpr.setValue(computations.getSigmaOpr());
         tfYOpr.setValue(computations.getyOpr());
         tfTempOpr.setValue(computations.getTempOpr());

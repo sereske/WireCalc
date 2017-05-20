@@ -378,6 +378,7 @@ public class Computations {
         double sigma0 = wire.getSigmaNb();
         double sigmaNb = wire.getSigmaNb();
         double ynb = getYnb();
+        int k = 0;
         while (true) {
             double Leq = diffX + 2 * (sigma0 / ynb) * asinh(ynb * diffY / (2 * sigma0 * sinh(diffX * ynb / (2 * sigma0))));
             double sigmaA = sigma0 * cosh(Leq * ynb / (2 * sigma0));
@@ -386,6 +387,11 @@ public class Computations {
             if (delta < 0.1) {
                 break;
             }
+            if (k > 20) {
+                sigma0 = sigmaNb;
+                break;
+            }
+            k++;
         }
         sigmaR = sigma0;
         return sigma0;
@@ -400,7 +406,7 @@ public class Computations {
         return iceTemp - 3 + sigmaNb * y2 / (alpha * e * y3);
     }
 
-    public double getSigmaMaxProvis() {
+    public double getSigmaMaxProvis() throws WireException {
         double alpha = wire.getAlpha();
         double e = wire.getE();
 
@@ -422,7 +428,13 @@ public class Computations {
                 break;
             }
         }
+        /*
+        if (sigmaMaxProvis > wire.getSigmaNb()) {
+            throw new WireException("Неподходящий провод.\nВыберите другую марку!");
+        }
+        */
         return sigmaMaxProvis;
+
     }
 
     public double getYMaxProvis() {
@@ -445,7 +457,7 @@ public class Computations {
         return tempMaxProvis;
     }
 
-    public double getFaMaxProvis() {
+    public double getFaMaxProvis() throws WireException {
         double yMaxProvis = getYMaxProvis();
         double sigmaMaxProvis = getSigmaMaxProvis();
         double distanceA = 0.5 * (diffX - (2 * sigmaMaxProvis / yMaxProvis)
@@ -456,11 +468,11 @@ public class Computations {
         return FaMaxProvis;
     }
 
-    public double getFbMaxProvis() {
+    public double getFbMaxProvis() throws WireException {
         return getFaMaxProvis() + diffY;
     }
 
-    public double getLMaxProvis() {
+    public double getLMaxProvis()  throws WireException {
         double yMaxProvis = getYMaxProvis();
         double sigmaMaxProvis = getSigmaMaxProvis();
         double value = pow(((2 * sigmaMaxProvis / yMaxProvis) * (sinh(yMaxProvis * diffX/ (2 * sigmaMaxProvis)))), 2) + diffY * diffY;
@@ -613,7 +625,7 @@ public class Computations {
         return dots;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args)  throws WireException {
         Computations computations = new Computations(104.0, 1700.0, 140.0, Wire.getWire1(), Wind.Two, Area.B, Ice.One,
                 -55, -5, -10, 35, 110);
         //System.out.println("Sigma0: " + computations.getSigma0());
