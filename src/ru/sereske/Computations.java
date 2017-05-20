@@ -39,7 +39,7 @@ public class Computations {
     private double yOpr;
     private double tempOpr;
 
-    private double sigmaR;
+    //private double sigmaR;
 
     private double u;
 
@@ -133,11 +133,11 @@ public class Computations {
     }
 
     public double getKbh() {
-        return pow(log10(sqrt(7 * getHCenterMass())), 2);
+        return (getHCenterMass() <= 25.0) ? 1.0 :  pow(log10(sqrt(7 * getHCenterMass())), 2);
     }
 
     public double getKbd() {
-        return 0.83 / pow(wire.getDiameter() * 0.1, 0.25) + 0.17;
+        return (wire.getDiameter() <= 10) ? 1.0 : 0.83 / pow(wire.getDiameter() * 0.1, 0.25) + 0.17;
     }
 
     public double getB() {
@@ -301,15 +301,15 @@ public class Computations {
         double sigmaSe1 = sigmaNb * getY1() / getYnb();
 
         if (critLength1 < critLength3) {
-            if (length < critLength1) {
+            if (diffX < critLength1) {
                 yOpr = y1;
                 tempOpr = minTemp;
                 sigmaOpr = sigmaMinus;
-            } else if (length >= critLength1 && length <= critLength3) {
+            } else if (diffX >= critLength1 && diffX <= critLength3) {
                 yOpr = y1;
                 tempOpr = avgTemp;
                 sigmaOpr = sigmaSe;
-            } else if (length > critLength3) {
+            } else if (diffX > critLength3) {
                 yOpr = ynb;
                 tempOpr = iceTemp;
                 sigmaOpr = sigmaNb;
@@ -317,14 +317,14 @@ public class Computations {
             critLength2 = -1;
         } else {
             critLength2 = 4.9 * (sigmaNb / y1) * sqrt((alpha * (iceTemp - minTemp)) / (pow((ynb / y1), 2) - 1));
-            if (length < critLength2) {
+            if (diffX < critLength2) {
                 yOpr = y1;
                 tempOpr = minTemp;
                 sigmaOpr = sigmaMinus;
             } else {
-                yOpr = y1;
-                tempOpr = avgTemp;
-                sigmaOpr = sigmaSe;
+                yOpr = ynb;
+                tempOpr = iceTemp;
+                sigmaOpr = sigmaNb;
             }
         }
         return critLength2;
@@ -388,12 +388,12 @@ public class Computations {
                 break;
             }
             if (k > 20) {
-                sigma0 = sigmaNb;
+                sigma0 = sigmaOpr;
                 break;
             }
             k++;
         }
-        sigmaR = sigma0;
+        //sigmaR = sigma0;
         return sigma0;
     }
 
@@ -415,9 +415,11 @@ public class Computations {
 
         double tempMaxProvis = getTempMaxProvis();
 
+        double sigma0 = getSigma0();
+
         //getCritLength2();
 
-        double A = sigmaR - yOpr * yOpr * diffX * diffX * e / (24 * sigmaR * sigmaR) + alpha * e * (tempMaxProvis - iceTemp);
+        double A = sigma0 - yOpr * yOpr * diffX * diffX * e / (24 * sigma0 * sigma0) + alpha * e * (tempMaxProvis - tempOpr);
         double B = yMaxProvis * yMaxProvis * diffX * diffX * e / 24;
         while (true) {
             double sigmaNext = (pow(sigmaMaxProvis, 2) * (2 * sigmaMaxProvis - A) + B)
@@ -510,12 +512,13 @@ public class Computations {
         if (!temps.contains(maxTemp)) {
             temps.add(maxTemp);
         }
+        double sigma0 = getSigma0();
         double Cm = getCm();
         double D = getD();
         double y1 = getY1();
         double alpha = wire.getAlpha();
         for (Integer temp : temps) {
-            double A = sigmaR * Cm / D - pow(yOpr, 2) * pow(diffX, 2) * Cm / (24 * sigmaR * sigmaR) + alpha * Cm * (tempOpr - temp);
+            double A = sigma0 * Cm / D - pow(yOpr, 2) * pow(diffX, 2) * Cm / (24 * sigma0 * sigma0) + alpha * Cm * (tempOpr - temp);
             double B = y1 * y1 * diffX * diffX * Cm / 24;
             double s0;
             if (A < 0) {
@@ -588,15 +591,16 @@ public class Computations {
         double kd;
         double y1 = getY1();
         double F = getF();
+        double sigma0 = getSigma0();
         int G = VoltageUtil.getG(voltage);
         if (avgTemp <= -10 || minTemp <= -50) {
             kd = 1.4;
         } else {
             kd = 1.0;
         }
-        double distanceB = 0.5 * (diffX + (2 * sigmaR / y1)
+        double distanceB = 0.5 * (diffX + (2 * sigma0 / y1)
                 * asinh(y1 * diffY
-                / (2 * sigmaR * sinh(diffX * y1 / (2 * sigmaR))))
+                / (2 * sigma0 * sinh(diffX * y1 / (2 * sigma0))))
         );
         double ReLmech2 = 0.5 * km1 * kd * sqrt(
                 pow(y1 * distanceB * F / 2 + 2 * G, 2) + pow(getSigmaGirlianda() * F, 2)
@@ -628,17 +632,28 @@ public class Computations {
     public static void main(String[] args)  throws WireException {
         Computations computations = new Computations(104.0, 1700.0, 140.0, Wire.getWire1(), Wind.Two, Area.B, Ice.One,
                 -55, -5, -10, 35, 110);
+        Computations computations1 = new Computations(0, 246.0, 22.6, Wire.getWire1(), Wind.Two, Area.A, Ice.One,
+                -55, -5, -10, 35, 110);
         //System.out.println("Sigma0: " + computations.getSigma0());
         //System.out.println("ynb: " + computations.getYnb());
         //System.out.println("CritLength1: " + computations.getCritLength1());
         //System.out.println("CritLength3: " + computations.getCritLength3());
         //System.out.println("CritLength2: " + computations.getCritLength2());
-        System.out.println("SigmaOpr: " + computations.sigmaOpr);
+        System.out.println("y1: " + computations1.getY1());
+        System.out.println("y2: " + computations1.getY2());
+        System.out.println("y3: " + computations1.getY3());
+        System.out.println("y4: " + computations1.getY4());
+        System.out.println("y5: " + computations1.getY5());
+        System.out.println("y6: " + computations1.getY6());
+        System.out.println("y7: " + computations1.getY7());
+        System.out.println("ynb: " + computations1.getYnb());
+        System.out.println("SigmaOpr: " + computations1.sigmaOpr);
+        System.out.println("SigmaMaxProvis: " + computations1.getSigmaMaxProvis());
         //System.out.println("SigmaMaxProvis: " + computations.getSigmaMaxProvis());
         //System.out.println("Sigma0: " + computations.getSigma0());
-        System.out.println("Fa: " + computations.getFaMaxProvis());
-        System.out.println("Fb: " + computations.getFbMaxProvis());
-        System.out.println("L: " + computations.getLMaxProvis());
+        System.out.println("Fa: " + computations1.getFaMaxProvis());
+        System.out.println("Fb: " + computations1.getFbMaxProvis());
+        System.out.println("L: " + computations1.getLMaxProvis());
         computations.getMontazh().forEach(a -> System.out.println("temp: " + a.getTemp() + ", Fa: " + a.getFa() + ", Fb: " + a.getFb()));
         System.out.println("RelMech2: " + computations.ReLmech2());
         System.out.println("RelMech1: " + computations.ReLmech1());
