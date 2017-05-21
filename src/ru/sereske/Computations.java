@@ -419,7 +419,7 @@ public class Computations {
 
         //getCritLength2();
 
-        double A = sigma0 - yOpr * yOpr * diffX * diffX * e / (24 * sigma0 * sigma0) + alpha * e * (tempMaxProvis - tempOpr);
+        double A = sigma0 - yOpr * yOpr * diffX * diffX * e / (24 * sigma0 * sigma0) + alpha * e * (- tempMaxProvis + tempOpr);
         double B = yMaxProvis * yMaxProvis * diffX * diffX * e / 24;
         while (true) {
             double sigmaNext = (pow(sigmaMaxProvis, 2) * (2 * sigmaMaxProvis - A) + B)
@@ -462,11 +462,11 @@ public class Computations {
     public double getFaMaxProvis() throws WireException {
         double yMaxProvis = getYMaxProvis();
         double sigmaMaxProvis = getSigmaMaxProvis();
-        double distanceA = 0.5 * (diffX - (2 * sigmaMaxProvis / yMaxProvis)
+        double distanceA = (diffX - (2 * sigmaMaxProvis / yMaxProvis)
                 * asinh(yMaxProvis * diffY
                         / (2 * sigmaMaxProvis * sinh(diffX * yMaxProvis / (2 * sigmaMaxProvis))))
         );
-        double FaMaxProvis = distanceA * yMaxProvis * (diffX - distanceA) / (8 * sigmaMaxProvis) + distanceA * diffY / diffX;
+        double FaMaxProvis = distanceA * distanceA * yMaxProvis / (8 * sigmaMaxProvis);
         return FaMaxProvis;
     }
 
@@ -537,11 +537,11 @@ public class Computations {
 
             //double yMaxProvis = getYMaxProvis();
             //double sigmaMaxProvis = getSigmaMaxProvis();
-            double distanceA = 0.5 * (diffX - (2 * s0 / y1)
+            double distanceA = (diffX - (2 * s0 / y1)
                     * asinh(y1 * diffY
                     / (2 * s0 * sinh(diffX * y1 / (2 * s0))))
             );
-            double Fa = distanceA * y1 * (diffX - distanceA) / (8 * s0) + distanceA * diffY / diffX;
+            double Fa = distanceA * distanceA * y1 / (8 * s0);
             double Fb = Fa + diffY;
             Montazh montazh = new Montazh(temp, Fa, Fb);
             list.add(montazh);
@@ -630,7 +630,7 @@ public class Computations {
     }
 
     public static void main(String[] args)  throws WireException {
-        Computations computations = new Computations(104.0, 1700.0, 140.0, Wire.getWire1(), Wind.Two, Area.B, Ice.One,
+        Computations computations = new Computations(104.0, 1700.0, 140.0, Wire.getWire6(), Wind.Two, Area.A, Ice.One,
                 -55, -5, -10, 35, 110);
         Computations computations1 = new Computations(0, 246.0, 22.6, Wire.getWire1(), Wind.Two, Area.A, Ice.One,
                 -55, -5, -10, 35, 110);
@@ -639,21 +639,25 @@ public class Computations {
         //System.out.println("CritLength1: " + computations.getCritLength1());
         //System.out.println("CritLength3: " + computations.getCritLength3());
         //System.out.println("CritLength2: " + computations.getCritLength2());
-        System.out.println("y1: " + computations1.getY1());
-        System.out.println("y2: " + computations1.getY2());
-        System.out.println("y3: " + computations1.getY3());
-        System.out.println("y4: " + computations1.getY4());
-        System.out.println("y5: " + computations1.getY5());
-        System.out.println("y6: " + computations1.getY6());
-        System.out.println("y7: " + computations1.getY7());
-        System.out.println("ynb: " + computations1.getYnb());
-        System.out.println("SigmaOpr: " + computations1.sigmaOpr);
-        System.out.println("SigmaMaxProvis: " + computations1.getSigmaMaxProvis());
+        System.out.println("y1: " + computations.getY1());
+        System.out.println("y2: " + computations.getY2());
+        System.out.println("y3: " + computations.getY3());
+        System.out.println("y4: " + computations.getY4());
+        System.out.println("y5: " + computations.getY5());
+        System.out.println("y6: " + computations.getY6());
+        System.out.println("y7: " + computations.getY7());
+        System.out.println("ynb: " + computations.getYnb());
+        System.out.println("CritLenght1: " + computations.getCritLength1());
+        System.out.println("CritLenght2: " + computations.getCritLength2());
+        System.out.println("CritLenght3: " + computations.getCritLength3());
+        System.out.println("SigmaOpr: " + computations.sigmaOpr);
+        System.out.println("SigmaMaxProvis: " + computations.getSigmaMaxProvis());
+        System.out.println("YMaxProvis: " + computations.getYMaxProvis());
         //System.out.println("SigmaMaxProvis: " + computations.getSigmaMaxProvis());
         //System.out.println("Sigma0: " + computations.getSigma0());
-        System.out.println("Fa: " + computations1.getFaMaxProvis());
-        System.out.println("Fb: " + computations1.getFbMaxProvis());
-        System.out.println("L: " + computations1.getLMaxProvis());
+        System.out.println("Fa: " + computations.getFaMaxProvis());
+        System.out.println("Fb: " + computations.getFbMaxProvis());
+        System.out.println("L: " + computations.getLMaxProvis());
         computations.getMontazh().forEach(a -> System.out.println("temp: " + a.getTemp() + ", Fa: " + a.getFa() + ", Fb: " + a.getFb()));
         System.out.println("RelMech2: " + computations.ReLmech2());
         System.out.println("RelMech1: " + computations.ReLmech1());
