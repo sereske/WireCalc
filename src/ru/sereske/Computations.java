@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.Math.*;
-import static java.lang.Math.pow;
-import static java.lang.Math.sinh;
 
 /**
  * Created by stepanovsg on 18.04.2017.
@@ -462,11 +460,11 @@ public class Computations {
     public double getFaMaxProvis() throws WireException {
         double yMaxProvis = getYMaxProvis();
         double sigmaMaxProvis = getSigmaMaxProvis();
-        double distanceA = (diffX - (2 * sigmaMaxProvis / yMaxProvis)
+        double distanceA =0.5 * (diffX - (2 * sigmaMaxProvis / yMaxProvis)
                 * asinh(yMaxProvis * diffY
                         / (2 * sigmaMaxProvis * sinh(diffX * yMaxProvis / (2 * sigmaMaxProvis))))
         );
-        double FaMaxProvis = distanceA * distanceA * yMaxProvis / (8 * sigmaMaxProvis);
+        double FaMaxProvis = (yMaxProvis * distanceA * (diffX - distanceA ) / (2 * sigmaMaxProvis)) - (diffY * distanceA / diffX);
         return FaMaxProvis;
     }
 
@@ -537,11 +535,11 @@ public class Computations {
 
             //double yMaxProvis = getYMaxProvis();
             //double sigmaMaxProvis = getSigmaMaxProvis();
-            double distanceA = (diffX - (2 * s0 / y1)
+            double distanceA = 0.5 * (diffX - (2 * s0 / y1)
                     * asinh(y1 * diffY
                     / (2 * s0 * sinh(diffX * y1 / (2 * s0))))
             );
-            double Fa = distanceA * distanceA * y1 / (8 * s0);
+            double Fa = (y1 * distanceA * (diffX - distanceA ) / (2 * s0)) - (diffY * distanceA / diffX);
             double Fb = Fa + diffY;
             Montazh montazh = new Montazh(temp, Fa, Fb);
             list.add(montazh);
